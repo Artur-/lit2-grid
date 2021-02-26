@@ -7,17 +7,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.vaadin.artur.helpers.LaunchUtil;
-import com.vaadin.flow.theme.Theme;
 
-/**
- * The entry point of the Spring Boot application.
- *
- * Use the * and some desktop browsers.
- *
- */
 @SpringBootApplication
-@Theme(value = "lit2-grid")
-@PWA(name = "lit2-grid", shortName = "lit2-grid", offlineResources = {"images/logo.png"})
+@PWA(name = "lit2-grid", shortName = "lit2-grid", offlineResources = { "images/logo.png" })
 public class Application extends SpringBootServletInitializer implements AppShellConfigurator {
 
     public static void main(String[] args) {
