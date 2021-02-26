@@ -4,8 +4,9 @@ import type {
   GridDataProviderParams,
   GridElement,
 } from "@vaadin/vaadin-grid";
+import "@vaadin/vaadin-grid/vaadin-grid-sort-column";
 import { ModelConstructor } from "Frontend/../target/flow-frontend/form";
-import Person from "Frontend/generated/com/example/application/Person";
+import GridSorter from "Frontend/generated/org/vaadin/artur/helpers/GridSorter";
 import { html } from "lit-element";
 import {
   ChildPartInfo,
@@ -16,7 +17,11 @@ import {
 } from "lit-html/directive";
 
 interface HasList<T> {
-  list(): Promise<T[]>;
+  list(
+    offset: number,
+    limit: number,
+    sortOrder: Array<GridSorter>
+  ): Promise<T[]>;
 }
 
 export const endPointDataProvider = <T>(
@@ -24,17 +29,20 @@ export const endPointDataProvider = <T>(
   endpoint: HasList<T>
 ): GridDataProvider => {
   const dataProvider: GridDataProvider = async (
-    _params: GridDataProviderParams,
+    params: GridDataProviderParams,
     callback: GridDataProviderCallback
   ): Promise<void> => {
-    // const index = params.page * params.pageSize;
-    const data = await endpoint
-      .list
-      // index,
-      // params.pageSize,
-      // params.sortOrders as any
-      ();
-    grid.size = data.length;
+    const index = params.page * params.pageSize;
+    const data = await endpoint.list(
+      index,
+      params.pageSize,
+      params.sortOrders as any
+    );
+    if (data.length == params.pageSize) {
+      grid.size = index + data.length + 1;
+    } else {
+      grid.size = index + data.length;
+    }
     callback(data);
   };
   return dataProvider;
@@ -52,7 +60,7 @@ export const endpointDataProvider = directive(
       }
       this.partInfo = partInfo;
     }
-    render(hasList: HasList<Person>) {
+    render(hasList: HasList<any>) {
       const grid = (this.partInfo as any).element as GridElement;
 
       grid.dataProvider = endPointDataProvider(grid, hasList);
@@ -78,7 +86,8 @@ export const gridColumns = directive(
       ).filter((p) => p !== "constructor");
 
       return properties.map(
-        (p) => html`<vaadin-grid-column path="${p}"></vaadin-grid-column>`
+        (p) =>
+          html`<vaadin-grid-sort-column path="${p}"></vaadin-grid-sort-column>`
       );
     }
   }
